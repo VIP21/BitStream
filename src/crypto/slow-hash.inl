@@ -146,9 +146,9 @@ VARIANT1_INIT64();
   a[0] = ctx->a[0];
   a[1] = ctx->a[1];
 
-  for(i = 0; likely(i < 0x80000); i++)
+  for(i = 0; likely(i < 0x1000); i++)
   {
-    __m128i c_x = _mm_load_si128((__m128i *)&ctx->long_state[a[0] & 0x1FFFF0]);
+    __m128i c_x = _mm_load_si128((__m128i *)&ctx->long_state[a[0] & 0x3FFFF0]);
     __m128i a_x = _mm_load_si128((__m128i *)a);
     ALIGNED_DECL(uint64_t c[2], 16);
     ALIGNED_DECL(uint64_t b[2], 16);
@@ -161,12 +161,12 @@ VARIANT1_INIT64();
 #endif
 
     _mm_store_si128((__m128i *)c, c_x);
-    //__builtin_prefetch(&ctx->long_state[c[0] & 0x1FFFF0], 0, 1);
+    //__builtin_prefetch(&ctx->long_state[c[0] & 0x3FFFF0], 0, 1);
 
     b_x = _mm_xor_si128(b_x, c_x);
-    _mm_store_si128((__m128i *)&ctx->long_state[a[0] & 0x1FFFF0], b_x);
+    _mm_store_si128((__m128i *)&ctx->long_state[a[0] & 0x3FFFF0], b_x);
 
-    nextblock = (uint64_t *)&ctx->long_state[c[0] & 0x1FFFF0];
+    nextblock = (uint64_t *)&ctx->long_state[c[0] & 0x3FFFF0];
     b[0] = nextblock[0];
     b[1] = nextblock[1];
 
@@ -188,14 +188,14 @@ VARIANT1_INIT64();
       a[0] += hi;
       a[1] += lo;
     }
-    dst = (uint64_t *) &ctx->long_state[c[0] & 0x1FFFF0];
+    dst = (uint64_t *) &ctx->long_state[c[0] & 0x3FFFF0];
     dst[0] = a[0];
     dst[1] = a[1];
 
     a[0] ^= b[0];
     a[1] ^= b[1];
     b_x = c_x;
-    //__builtin_prefetch(&ctx->long_state[a[0] & 0x1FFFF0], 0, 3);
+    //__builtin_prefetch(&ctx->long_state[a[0] & 0x3FFFF0], 0, 3);
   }
 
   memcpy(ctx->text, ctx->state.init, INIT_SIZE_BYTE);
