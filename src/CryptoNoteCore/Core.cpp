@@ -551,6 +551,11 @@ std::error_code Core::addBlock(const CachedBlock& cachedBlock, RawBlock&& rawBlo
     return error::AddBlockErrorCode::DESERIALIZATION_FAILED;
   }
 
+    if (static_cast<uint32_t>(transactions.size()) <= 2){
+    logger(Logging::DEBUGGING) << "Block was empty";
+    return make_error_code(error::AddBlockErrorCode::DESERIALIZATION_FAILED);
+  }
+
   auto coinbaseTransactionSize = getObjectBinarySize(blockTemplate.baseTransaction);
   assert(coinbaseTransactionSize < std::numeric_limits<decltype(coinbaseTransactionSize)>::max());
   auto cumulativeBlockSize = coinbaseTransactionSize + cumulativeSize;
